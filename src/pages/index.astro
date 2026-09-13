@@ -93,7 +93,7 @@ const assetBase = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/`;
 							<span id="question-counter">PERGUNTA 01</span>
 							<span>SIM / NÃO</span>
 						</div>
-						<h1 id="question-title">Sou aluno?</h1>
+						<h1 id="question-title" tabindex="-1">Sou aluno?</h1>
 						</div>
 					</div>
 					<div class="answer-buttons">
@@ -243,7 +243,7 @@ const assetBase = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/`;
 			function renderQuestion() {
 				questionTitle.textContent = currentQuestion.text;
 				questionCounter.textContent = `PERGUNTA ${String(questionNumber).padStart(2, '0')}`;
-				document.querySelector('[data-answer="yes"]')?.focus();
+				questionTitle.focus({ preventScroll: true });
 			}
 
 			function startGame() {
