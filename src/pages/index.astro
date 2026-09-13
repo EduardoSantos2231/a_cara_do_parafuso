@@ -1,17 +1,1040 @@
 ---
-
+const assetBase = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/`;
 ---
 
-<html lang="en">
+<!doctype html>
+<html lang="pt-BR">
 	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
+		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<meta name="description" content="A Cara do Parafuso: um jogo de perguntas para adivinhar seus amigos." />
+		<title>A Cara do Parafuso</title>
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<div class="workshop-grid" aria-hidden="true"></div>
+
+		<dialog class="notice" id="notice" aria-labelledby="notice-title" aria-describedby="notice-copy" open>
+			<div class="notice-mark">!</div>
+			<p class="eyebrow">AVISO DA OFICINA</p>
+			<h2 id="notice-title">É só na brincadeira.</h2>
+			<p id="notice-copy">
+				Esta brincadeira foi criada apenas para entretenimento e para fazer graça entre amigos. Não temos o objetivo de ofender ninguém. Caso você se sinta ofendido, basta solicitar e seu personagem será removido.
+			</p>
+			<button class="button button-primary" type="button" data-dismiss-notice>
+				Entendi e quero brincar
+			</button>
+		</dialog>
+
+		<main class="site-shell">
+			<header class="site-header">
+				<a class="brand" href={assetBase} aria-label="A Cara do Parafuso, início">
+					<img class="brand-mark" src={`${assetBase}parafuso.png`} alt="Parafuso" />
+					<span>A Cara<br /><strong>do Parafuso</strong></span>
+				</a>
+			</header>
+
+			<section class="home-screen roster-collapsed" id="home-screen" aria-labelledby="home-title">
+				<div class="hero-copy">
+					<h1 id="home-title">Quem é a<br /><em>cara</em> do parafuso?</h1>
+					<p class="tagline">qual foi, ferramenta?</p>
+					<div class="home-actions">
+						<button class="button button-start" id="start-button" type="button">
+							<span>começar</span>
+							<span class="button-arrow" aria-hidden="true">→</span>
+						</button>
+						<button class="roster-toggle" id="roster-toggle" type="button" aria-controls="roster" aria-expanded="false">
+							<span>mostrar ferramentas do elenco</span>
+							<span class="roster-toggle-icon" aria-hidden="true">+</span>
+						</button>
+					</div>
+				</div>
+
+				<div class="roster" id="roster" aria-label="Personagens cadastrados" hidden>
+					<div class="roster-heading">
+						<span>ferramentas do elenco</span>
+						<span>04 opções</span>
+					</div>
+					<div class="character-grid">
+						<article class="character-card character-card-orange">
+							<div class="card-number">01</div>
+							<img src={`${assetBase}neguin_do_uno.png`} alt="Imagem de Neguinho do Uno" loading="eager" />
+							<h2>Neguinho<br />do Uno</h2>
+						</article>
+						<article class="character-card character-card-blue">
+							<div class="card-number">02</div>
+							<img src={`${assetBase}irmao_do_jorel.png`} alt="Imagem do Irmão do Jorel" loading="eager" />
+							<h2>Irmão<br />do Jorel</h2>
+						</article>
+						<article class="character-card character-card-yellow">
+							<div class="card-number">03</div>
+							<img src={`${assetBase}macaco_micao.png`} alt="Imagem do Macaco do Micão" loading="eager" />
+							<h2>Macaco<br />do Micão</h2>
+						</article>
+						<article class="character-card character-card-purple">
+							<div class="card-number">04</div>
+							<img src={`${assetBase}dobby.png`} alt="Imagem de Dobby" loading="eager" />
+							<h2>Dobby</h2>
+						</article>
+					</div>
+				</div>
+			</section>
+
+			<section class="game-screen" id="game-screen" aria-labelledby="question-title" hidden>
+				<div class="game-header">
+					<button class="text-button" type="button" data-restart>Recomeçar <span aria-hidden="true">↻</span></button>
+				</div>
+				<div class="question-stage">
+					<div class="question-host">
+						<div class="wrench-wrap">
+							<img class="wrench-image" src={`${assetBase}chave_inglesa.png`} alt="Chave inglesa fazendo a pergunta" />
+						</div>
+						<div class="speech-bubble">
+						<div class="question-meta">
+							<span id="question-counter">PERGUNTA 01</span>
+							<span>SIM / NÃO</span>
+						</div>
+						<h1 id="question-title">Sou aluno?</h1>
+						</div>
+					</div>
+					<div class="answer-buttons">
+						<button class="answer-button answer-yes" type="button" data-answer="yes">Sim <span aria-hidden="true">↗</span></button>
+						<button class="answer-button answer-no" type="button" data-answer="no">Não <span aria-hidden="true">↘</span></button>
+					</div>
+					<p class="question-footnote">Escolha a resposta que mais combina com a pessoa pensada.</p>
+				</div>
+			</section>
+
+			<section class="result-screen" id="result-screen" aria-labelledby="result-title" hidden>
+				<div class="result-label"><span>DIAGNÓSTICO FINAL</span><span>ACP / 001</span></div>
+				<div class="result-content">
+					<div class="result-image-wrap" id="result-image-wrap">
+						<img id="result-image" src="" alt="" />
+					</div>
+					<div class="result-copy">
+						<p class="eyebrow">O PARAFUSO APONTOU PARA</p>
+						<h1 id="result-title">Dobby</h1>
+						<p id="result-description">Diagnóstico concluído. A cara do parafuso foi identificada.</p>
+						<button class="button button-primary" type="button" data-restart>Jogar de novo <span aria-hidden="true">↻</span></button>
+					</div>
+				</div>
+			</section>
+
+		</main>
+
+		<script>
+			const assetBase = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/`;
+			const characters = {
+				neguinho: {
+					name: 'Neguinho do Uno',
+					image: `${assetBase}neguin_do_uno.png`,
+					description: 'Diagnóstico concluído. A cara do parafuso foi identificada.'
+				},
+				jorel: {
+					name: 'Irmão do Jorel',
+					image: `${assetBase}irmao_do_jorel.png`,
+					description: 'Diagnóstico concluído. A cara do parafuso foi identificada.'
+				},
+				macaco: {
+					name: 'Macaco do Micão',
+					image: `${assetBase}macaco_micao.png`,
+					description: 'Diagnóstico concluído. A cara do parafuso foi identificada.'
+				},
+				dobby: {
+					name: 'Dobby',
+					image: `${assetBase}dobby.png`,
+					description: 'Diagnóstico concluído. A cara do parafuso foi identificada.'
+				}
+			};
+
+			const undefinedResult = {
+				kind: 'result',
+				name: 'Personagem ainda não definido',
+				description: 'Esse ramo da árvore ainda não tem um personagem cadastrado.'
+			};
+
+			const result = (character) => ({ kind: 'result', ...characters[character] });
+			const carQuestion = {
+				kind: 'question',
+				text: 'Meu apelido envolve um carro?',
+				yes: result('neguinho'),
+				no: undefinedResult
+			};
+			const harryPotterQuestion = {
+				kind: 'question',
+				text: 'Eu apareço em Harry Potter?',
+				yes: result('dobby'),
+				no: undefinedResult
+			};
+			const christianQuestion = {
+				kind: 'question',
+				text: 'Sou cristão?',
+				yes: harryPotterQuestion,
+				no: undefinedResult
+			};
+			const filmQuestion = {
+				kind: 'question',
+				text: 'Meu apelido remete a um filme?',
+				yes: christianQuestion,
+				no: {
+					kind: 'question',
+					text: 'Os cara gasta muito?',
+					yes: carQuestion,
+					no: undefinedResult
+				}
+			};
+			const snackCharacterQuestion = {
+				kind: 'question',
+				text: 'Esse desenho é um personagem de salgadinho?',
+				yes: {
+					kind: 'question',
+					text: 'Eu sempre conto que já vivi toda situação?',
+					yes: result('macaco'),
+					no: result('jorel')
+				},
+				no: filmQuestion
+			};
+			const drawingQuestion = {
+				kind: 'question',
+				text: 'Meu apelido remete a um desenho?',
+				yes: snackCharacterQuestion,
+				no: filmQuestion
+			};
+			const bullyingQuestion = {
+				kind: 'question',
+				text: 'Gosto de fazer bullying com os outros?',
+				yes: drawingQuestion,
+				no: undefinedResult
+			};
+			const rootQuestion = {
+				kind: 'question',
+				text: 'Sou aluno?',
+				yes: bullyingQuestion,
+				no: undefinedResult
+			};
+
+			const notice = document.querySelector('#notice');
+			const homeScreen = document.querySelector('#home-screen');
+			const gameScreen = document.querySelector('#game-screen');
+			const resultScreen = document.querySelector('#result-screen');
+			const startButton = document.querySelector('#start-button');
+			const roster = document.querySelector('#roster');
+			const rosterToggle = document.querySelector('#roster-toggle');
+			const questionTitle = document.querySelector('#question-title');
+			const questionCounter = document.querySelector('#question-counter');
+			const resultTitle = document.querySelector('#result-title');
+			const resultImage = document.querySelector('#result-image');
+			const resultImageWrap = document.querySelector('#result-image-wrap');
+			const resultDescription = document.querySelector('#result-description');
+			let currentQuestion = rootQuestion;
+			let questionNumber = 1;
+
+			if (notice instanceof HTMLDialogElement) {
+				notice.removeAttribute('open');
+				notice.showModal();
+				notice.querySelector('[data-dismiss-notice]')?.addEventListener('click', () => notice.close());
+			}
+
+			function showScreen(screen) {
+				homeScreen.hidden = screen !== homeScreen;
+				gameScreen.hidden = screen !== gameScreen;
+				resultScreen.hidden = screen !== resultScreen;
+			}
+
+			function renderQuestion() {
+				questionTitle.textContent = currentQuestion.text;
+				questionCounter.textContent = `PERGUNTA ${String(questionNumber).padStart(2, '0')}`;
+				document.querySelector('[data-answer="yes"]')?.focus();
+			}
+
+			function startGame() {
+				currentQuestion = rootQuestion;
+				questionNumber = 1;
+				showScreen(gameScreen);
+				renderQuestion();
+				window.scrollTo({ top: 0, behavior: 'smooth' });
+			}
+
+			function showResult(finalResult) {
+				resultTitle.textContent = finalResult.name;
+				resultDescription.textContent = finalResult.description;
+				if (finalResult.image) {
+					resultImage.src = finalResult.image;
+					resultImage.alt = `Imagem de ${finalResult.name}`;
+					resultImageWrap.hidden = false;
+				} else {
+					resultImage.removeAttribute('src');
+					resultImage.alt = '';
+					resultImageWrap.hidden = true;
+				}
+				showScreen(resultScreen);
+				window.scrollTo({ top: 0, behavior: 'smooth' });
+			}
+
+			rosterToggle?.addEventListener('click', () => {
+				if (!roster || !rosterToggle) return;
+				const shouldShow = roster.hidden;
+				roster.hidden = !shouldShow;
+				rosterToggle.setAttribute('aria-expanded', String(shouldShow));
+				rosterToggle.querySelector('span:first-child').textContent = shouldShow
+					? 'ocultar ferramentas do elenco'
+					: 'mostrar ferramentas do elenco';
+				rosterToggle.querySelector('.roster-toggle-icon').textContent = shouldShow ? '−' : '+';
+				homeScreen.classList.toggle('roster-collapsed', !shouldShow);
+			});
+
+			startButton?.addEventListener('click', startGame);
+			document.querySelectorAll('[data-restart]').forEach((button) => button.addEventListener('click', startGame));
+			document.querySelectorAll('[data-answer]').forEach((button) => {
+				button.addEventListener('click', () => {
+					const answer = button.dataset.answer;
+					if (answer !== 'yes' && answer !== 'no') return;
+					const next = currentQuestion[answer];
+					if (next.kind === 'result') {
+						showResult(next);
+						return;
+					}
+					currentQuestion = next;
+					questionNumber += 1;
+					renderQuestion();
+				});
+			});
+		</script>
 	</body>
 </html>
+
+<style>
+	:root {
+		--ink: #f4f0e7;
+		--muted: #a7a49e;
+		--line: rgba(244, 240, 231, 0.14);
+		--panel: #202224;
+		--panel-light: #292b2c;
+		--orange: #f07b3f;
+		--yellow: #e6bb4c;
+		--blue: #6b9bb5;
+		--purple: #9881b5;
+		font-family: Arial, Helvetica, sans-serif;
+		color: var(--ink);
+		background: #17191a;
+	}
+
+	* {
+		box-sizing: border-box;
+	}
+
+	body {
+		margin: 0;
+		min-width: 320px;
+		min-height: 100vh;
+		background: #17191a;
+	}
+
+	button,
+	a {
+		font: inherit;
+	}
+
+	button {
+		cursor: pointer;
+	}
+
+	button:focus-visible,
+	a:focus-visible {
+		outline: 3px solid var(--yellow);
+		outline-offset: 4px;
+	}
+
+	[hidden] {
+		display: none !important;
+	}
+
+	.workshop-grid {
+		position: fixed;
+		inset: 0;
+		pointer-events: none;
+		opacity: 0.42;
+		background-image: linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+		background-size: 48px 48px;
+		mask-image: linear-gradient(to bottom, black, transparent 76%);
+	}
+
+	.site-shell {
+		position: relative;
+		z-index: 1;
+		width: min(1180px, calc(100% - 48px));
+		min-height: 100vh;
+		margin: 0 auto;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.site-header,
+	.game-header,
+	.result-label,
+	.roster-heading,
+	.question-meta {
+		font-size: 0.68rem;
+		font-weight: 700;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+	}
+
+	.site-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 28px 0;
+		border-bottom: 1px solid var(--line);
+	}
+
+	.brand {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		color: var(--ink);
+		font-size: 0.68rem;
+		line-height: 1.15;
+		letter-spacing: 0.13em;
+		text-decoration: none;
+		text-transform: uppercase;
+	}
+
+	.brand strong {
+		color: var(--orange);
+		font-weight: 700;
+	}
+
+	.brand-mark {
+		display: block;
+		width: 46px;
+		height: 46px;
+		object-fit: contain;
+		transform: rotate(-8deg);
+	}
+
+	.home-screen {
+		display: grid;
+		grid-template-columns: minmax(280px, 0.82fr) minmax(560px, 1.18fr);
+		gap: clamp(44px, 8vw, 110px);
+		align-items: center;
+		flex: 1;
+		padding: clamp(65px, 9vw, 125px) 0 80px;
+	}
+
+	.home-screen.roster-collapsed {
+		grid-template-columns: 1fr;
+	}
+
+	.roster-collapsed .hero-copy {
+		max-width: 720px;
+	}
+
+	.eyebrow {
+		margin: 0 0 20px;
+		color: var(--orange);
+		font-size: 0.7rem;
+		font-weight: 700;
+		letter-spacing: 0.17em;
+		text-transform: uppercase;
+	}
+
+	.hero-copy h1 {
+		max-width: 520px;
+		margin: 0;
+		font-size: clamp(3.3rem, 6vw, 6.2rem);
+		font-weight: 800;
+		letter-spacing: -0.075em;
+		line-height: 0.88;
+		text-transform: uppercase;
+		transform: rotate(-1.5deg);
+	}
+
+	.hero-copy h1 em {
+		color: var(--orange);
+		font-style: normal;
+	}
+
+	.tagline {
+		display: inline-block;
+		margin: 28px 0 34px;
+		color: var(--yellow);
+		font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+		font-weight: 800;
+		letter-spacing: -0.04em;
+		transform: rotate(-2deg);
+	}
+
+	.home-actions {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 20px 24px;
+	}
+
+	.button {
+		border: 0;
+		font-size: 0.77rem;
+		font-weight: 800;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+	}
+
+	.button-primary {
+		padding: 15px 21px;
+		background: var(--orange);
+		color: #17191a;
+		transition: background 160ms ease, transform 160ms ease;
+	}
+
+	.button-primary:hover {
+		background: #ff9560;
+		transform: translateY(-2px);
+	}
+
+	.button-start {
+		display: inline-flex;
+		align-items: center;
+		gap: 34px;
+		min-height: 60px;
+		padding: 18px 20px 18px 24px;
+		background: var(--orange);
+		border: 1px solid var(--orange);
+		box-shadow: 7px 7px 0 rgba(240, 123, 63, 0.2);
+		color: #17191a;
+		font-size: 0.84rem;
+		text-transform: lowercase;
+		transition: background 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+	}
+
+	.button-start:hover {
+		background: #ff9560;
+		box-shadow: 3px 3px 0 rgba(240, 123, 63, 0.2);
+		color: #17191a;
+		transform: translate(2px, 2px);
+	}
+
+	.button-arrow {
+		font-size: 1.15rem;
+		line-height: 0;
+	}
+
+	.roster {
+		width: 100%;
+	}
+
+	.roster-toggle {
+		display: inline-flex;
+		align-items: center;
+		gap: 12px;
+		padding: 7px 0;
+		border: 0;
+		border-bottom: 1px solid var(--line);
+		background: transparent;
+		color: var(--muted);
+		font-size: 0.68rem;
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		text-transform: none;
+		transition: color 160ms ease, border-color 160ms ease;
+	}
+
+	.roster-toggle:hover {
+		border-color: var(--orange);
+		color: var(--orange);
+	}
+
+	.roster-toggle-icon {
+		color: var(--orange);
+		font-size: 1.2rem;
+		font-weight: 400;
+		line-height: 0.5;
+	}
+
+	.roster-heading {
+		display: flex;
+		justify-content: space-between;
+		padding-bottom: 14px;
+		border-bottom: 1px solid var(--line);
+		color: var(--muted);
+		letter-spacing: 0.04em;
+		text-transform: none;
+	}
+
+	.roster-heading span:last-child {
+		color: var(--orange);
+	}
+
+	.character-grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 14px;
+		padding-top: 14px;
+	}
+
+	.character-card {
+		position: relative;
+		min-height: 235px;
+		overflow: hidden;
+		padding: 17px;
+		background: var(--panel);
+		border: 1px solid var(--line);
+		border-radius: 4px 16px 5px 12px;
+		transition: transform 180ms ease, border-color 180ms ease;
+	}
+
+	.character-card:nth-child(1) { transform: rotate(-1.8deg); }
+	.character-card:nth-child(2) { transform: rotate(1.1deg); }
+	.character-card:nth-child(3) { transform: rotate(1.7deg); }
+	.character-card:nth-child(4) { transform: rotate(-1deg); }
+
+	.character-card:hover {
+		border-color: rgba(244, 240, 231, 0.42);
+		transform: rotate(0deg) translateY(-5px) scale(1.015);
+	}
+
+	.character-card::after {
+		position: absolute;
+		right: -25px;
+		bottom: -35px;
+		width: 100px;
+		height: 100px;
+		border: 1px solid currentColor;
+		border-radius: 50%;
+		content: '';
+		opacity: 0.22;
+	}
+
+	.character-card-orange { background: #38231c; color: var(--orange); }
+	.character-card-blue { background: #1d303b; color: var(--blue); }
+	.character-card-yellow { background: #38301a; color: var(--yellow); }
+	.character-card-purple { background: #2c243c; color: var(--purple); }
+
+	.card-number {
+		position: relative;
+		z-index: 2;
+		font-size: 0.68rem;
+		font-weight: 700;
+		letter-spacing: 0.12em;
+	}
+
+	.character-card img {
+		display: block;
+		width: 100%;
+		height: 145px;
+		margin: -3px 0 8px;
+		object-fit: contain;
+		object-position: center;
+		filter: saturate(0.82) contrast(1.05);
+	}
+
+	.character-card h2 {
+		position: relative;
+		z-index: 2;
+		margin: 0;
+		color: var(--ink);
+		font-size: 1.08rem;
+		letter-spacing: -0.04em;
+		line-height: 0.95;
+		text-transform: uppercase;
+	}
+
+	.game-screen,
+	.result-screen {
+		flex: 1;
+		padding: clamp(55px, 8vw, 105px) 0 80px;
+	}
+
+	.game-header {
+		display: flex;
+		align-items: flex-start;
+		justify-content: flex-end;
+		gap: 18px;
+		margin-bottom: clamp(45px, 8vw, 90px);
+	}
+
+	.text-button {
+		flex-shrink: 0;
+		padding: 6px 0;
+		border: 0;
+		border-bottom: 1px solid var(--orange);
+		background: none;
+		color: var(--ink);
+		font-size: 0.68rem;
+		font-weight: 700;
+		letter-spacing: 0.13em;
+		text-transform: uppercase;
+		white-space: nowrap;
+	}
+
+	.text-button span {
+		margin-left: 7px;
+		color: var(--orange);
+		font-size: 1.05rem;
+	}
+
+	.question-stage {
+		width: min(900px, 100%);
+		margin: 0 auto;
+	}
+
+	.question-host {
+		display: grid;
+		grid-template-columns: 180px minmax(0, 1fr);
+		gap: clamp(24px, 5vw, 72px);
+		align-items: end;
+	}
+
+	.wrench-wrap {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 12px;
+	}
+
+	.wrench-image {
+		display: block;
+		width: 170px;
+		height: 170px;
+		object-fit: contain;
+		filter: drop-shadow(8px 9px 0 rgba(240, 123, 63, 0.2));
+		transform: rotate(-9deg);
+	}
+
+	.speech-bubble {
+		position: relative;
+		padding: clamp(28px, 5vw, 62px);
+		background: var(--panel);
+		border: 1px solid var(--orange);
+		border-radius: 5px 27px 8px 27px;
+		box-shadow: 16px 16px 0 rgba(240, 123, 63, 0.1);
+		transform: rotate(1deg);
+	}
+
+	.speech-bubble::before,
+	.speech-bubble::after {
+		position: absolute;
+		bottom: 42px;
+		width: 0;
+		height: 0;
+		content: '';
+	}
+
+	.speech-bubble::before {
+		left: -25px;
+		border-top: 15px solid transparent;
+		border-right: 25px solid var(--orange);
+		border-bottom: 15px solid transparent;
+	}
+
+	.speech-bubble::after {
+		left: -23px;
+		border-top: 13px solid transparent;
+		border-right: 23px solid var(--panel);
+		border-bottom: 13px solid transparent;
+	}
+
+	.question-meta {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: clamp(45px, 7vw, 85px);
+		color: var(--orange);
+	}
+
+	.question-meta span:last-child {
+		color: var(--muted);
+	}
+
+	.speech-bubble h1 {
+		min-height: 1.1em;
+		margin: 0;
+		font-size: clamp(2.2rem, 5vw, 4.8rem);
+		letter-spacing: -0.07em;
+		line-height: 0.95;
+	}
+
+	.answer-buttons {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 12px;
+		max-width: 720px;
+		margin: 28px auto 0;
+	}
+
+	.answer-button {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 18px 20px;
+		border: 1px solid var(--line);
+		background: transparent;
+		color: var(--ink);
+		font-size: 0.78rem;
+		font-weight: 700;
+		letter-spacing: 0.15em;
+		text-transform: uppercase;
+		transition: 160ms ease;
+	}
+
+	.answer-button span {
+		font-size: 1.25rem;
+		line-height: 0;
+	}
+
+	.answer-yes:hover,
+	.answer-yes:focus-visible {
+		border-color: var(--orange);
+		background: var(--orange);
+		color: #17191a;
+	}
+
+	.answer-no:hover,
+	.answer-no:focus-visible {
+		border-color: var(--blue);
+		background: var(--blue);
+		color: #17191a;
+	}
+
+	.question-footnote {
+		margin: 23px auto 0;
+		max-width: 720px;
+		color: #706f6b;
+		font-size: 0.72rem;
+		text-align: center;
+	}
+
+	.result-screen {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+	}
+
+	.result-label {
+		display: flex;
+		justify-content: space-between;
+		padding-bottom: 16px;
+		border-bottom: 1px solid var(--line);
+		color: var(--orange);
+	}
+
+	.result-label span:last-child {
+		color: var(--muted);
+	}
+
+	.result-content {
+		display: grid;
+		grid-template-columns: minmax(260px, 0.85fr) minmax(280px, 1fr);
+		gap: clamp(40px, 8vw, 120px);
+		align-items: center;
+		max-width: 950px;
+		margin: 40px auto 0;
+	}
+
+	.result-image-wrap {
+		min-height: 340px;
+		background: var(--panel);
+		border: 1px solid var(--line);
+	}
+
+	.result-image-wrap img {
+		display: block;
+		width: 100%;
+		height: 340px;
+		object-fit: contain;
+	}
+
+	.result-copy h1 {
+		margin: 0 0 20px;
+		color: var(--ink);
+		font-size: clamp(2.8rem, 6vw, 6rem);
+		letter-spacing: -0.08em;
+		line-height: 0.88;
+		text-transform: uppercase;
+	}
+
+	.result-copy p:not(.eyebrow) {
+		max-width: 340px;
+		margin: 0 0 30px;
+		color: var(--muted);
+		line-height: 1.6;
+	}
+
+	.notice {
+		width: min(450px, calc(100% - 32px));
+		padding: 30px;
+		background: #252728;
+		border: 1px solid rgba(240, 123, 63, 0.5);
+		color: var(--ink);
+		box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.35);
+	}
+
+	.notice::backdrop {
+		background: rgba(10, 11, 11, 0.8);
+		backdrop-filter: blur(4px);
+	}
+
+	.notice-mark {
+		display: grid;
+		width: 32px;
+		height: 32px;
+		margin-bottom: 24px;
+		place-items: center;
+		border: 1px solid var(--orange);
+		border-radius: 50%;
+		color: var(--orange);
+		font-weight: 800;
+	}
+
+	.notice h2 {
+		margin: 0 0 16px;
+		font-size: 2rem;
+		letter-spacing: -0.06em;
+	}
+
+	.notice p:not(.eyebrow) {
+		margin: 0 0 28px;
+		color: #c5c1b9;
+		font-size: 0.92rem;
+		line-height: 1.65;
+	}
+
+	@media (max-width: 850px) {
+		.home-screen {
+			grid-template-columns: 1fr;
+			gap: 65px;
+			padding-top: 70px;
+		}
+
+		.hero-copy h1 {
+			max-width: 600px;
+		}
+
+		.question-host {
+			grid-template-columns: 1fr;
+			gap: 18px;
+		}
+
+		.wrench-wrap {
+			flex-direction: row;
+			justify-content: center;
+			gap: 14px;
+		}
+
+		.wrench-image {
+			width: 120px;
+			height: 120px;
+		}
+
+		.speech-bubble::before,
+		.speech-bubble::after {
+			left: 50%;
+			bottom: auto;
+			transform: translateX(-50%);
+		}
+
+		.speech-bubble::before {
+			top: -25px;
+			border-top: 0;
+			border-right: 15px solid transparent;
+			border-bottom: 25px solid var(--orange);
+			border-left: 15px solid transparent;
+		}
+
+		.speech-bubble::after {
+			top: -23px;
+			border-top: 0;
+			border-right: 13px solid transparent;
+			border-bottom: 23px solid var(--panel);
+			border-left: 13px solid transparent;
+		}
+
+		.result-content {
+			grid-template-columns: 1fr;
+			max-width: 600px;
+		}
+
+		.result-image-wrap,
+		.result-image-wrap img {
+			height: min(55vw, 340px);
+			min-height: 0;
+		}
+	}
+
+	@media (max-width: 520px) {
+		.site-shell {
+			width: min(100% - 32px, 1180px);
+		}
+
+		.site-header {
+			padding: 20px 0;
+		}
+
+		.home-screen {
+			padding: 58px 0 60px;
+		}
+
+		.hero-copy h1 {
+			font-size: clamp(2.8rem, 14vw, 4.2rem);
+		}
+
+		.tagline {
+			margin-top: 24px;
+			font-size: 1.35rem;
+		}
+
+		.character-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.character-card {
+			min-height: 205px;
+		}
+
+		.character-card img {
+			height: 125px;
+		}
+
+		.game-screen,
+		.result-screen {
+			padding: 50px 0 60px;
+		}
+
+		.game-header {
+			align-items: center;
+			margin-bottom: 42px;
+		}
+
+		.text-button {
+			font-size: 0.6rem;
+			letter-spacing: 0.08em;
+		}
+
+		.speech-bubble {
+			padding: 25px 20px;
+			box-shadow: 8px 8px 0 rgba(240, 123, 63, 0.1);
+		}
+
+		.question-meta {
+			margin-bottom: 50px;
+		}
+
+		.speech-bubble h1 {
+			font-size: 2.5rem;
+		}
+
+		.answer-buttons {
+			grid-template-columns: 1fr;
+		}
+
+		.result-content {
+			margin-top: 28px;
+		}
+
+		.result-copy h1 {
+			font-size: 3.4rem;
+		}
+
+		.notice {
+			padding: 25px 22px;
+		}
+	}
+</style>
